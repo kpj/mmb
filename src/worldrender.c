@@ -14,6 +14,9 @@
 #include "vector.h"
 #include "worldrender.h"
 
+#define DAYLENGTH 8000000L
+#define SUNDISTANCE 300
+
 static long timer = 0;
 static int vertices;
 
@@ -340,7 +343,33 @@ static void worldrenderDrawSzene(World *world, Camera *camera)
 
 	// reenable lighting:
 	glEnable(GL_LIGHTING);
-	glLightfv(GL_LIGHT0, GL_POSITION, (GLfloat[]){0, 1, 0, 0});
+
+	double curAngle = 2*M_PI/DAYLENGTH * world->ingameTime;
+	double x = SUNDISTANCE * cos(curAngle);
+	double y = SUNDISTANCE * sin(curAngle);
+	double z = SUNDISTANCE * 1;
+
+	/*glRotatef(45, 0, 1, 0);
+	glBegin(GL_LINES); {
+		//glVertex3f(camera->x,camera->y,camera->z);
+		//glVertex3f(x,y,z);
+		glVertex3f(1.0,5.0,1.0);
+		glVertex3f(10*x,10*y,10*z);
+	}; glEnd();
+	glRotatef(-45, 0, 1, 0);*/
+
+	// fill array in a nicer way!!
+	GLfloat sunLight[4];
+	sunLight[0] = x;
+	sunLight[1] = y;
+	sunLight[2] = z;
+	sunLight[3] = 0;
+
+	glTranslatef(x + camera->x, y + camera->y, z + camera->z);
+	glutSolidSphere(35,20,20);
+	glTranslatef(-(x + camera->x), -(y + camera->y), -(z + camera->z));
+
+	glLightfv(GL_LIGHT0, GL_POSITION, sunLight);
 
 	glEnable(GL_TEXTURE_2D);
 
@@ -456,7 +485,7 @@ void worldrenderInit(World *world, Camera *camera)
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, (GLfloat[]){1, 1, 1, 1});
 
 	// create ambient light
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, (GLfloat[]){0.8, 0.8, 0.8, 1});
+	// I LIKE IT DARK glLightModelfv(GL_LIGHT_MODEL_AMBIENT, (GLfloat[]){0.8, 0.8, 0.8, 1});
 
 	// create light 0 (sun)
 	glEnable(GL_LIGHT0);
@@ -555,12 +584,17 @@ void worldrenderDraw(World *world, Camera *camera)
 	glFinish();
 	sleep = stopTimer(timer);
 
+//	world->ingameTime += (world->ingameTime <= DAYLENGTH) ? sleep : (world->ingameTime % DAYLENGTH) - world->ingameTime;
+	world->ingameTime += sleep;
+	if (world->ingameTime > DAYLENGTH)
+		world->ingameTime = world->ingameTime % DAYLENGTH;
+
 	// start timer for next frame
 	timer = startTimer();
 
 	// print statistics
-	printf("frame: %i %5li %5li %5li %5li %5li %5li\n", vertices,
-			pre, scene, gui, draw, update, sleep);
+	printf("frame: %i %5li %5li %5li %5li %5li %5li %5li\n", vertices,
+			pre, scene, gui, draw, update, sleep, world->ingameTime);
 	fflush(stdout);
 }
 

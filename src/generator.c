@@ -17,7 +17,8 @@ void generatorInit() {
 }
 
 Block *generatorGetBlock(Vector3i pos) {
-	int height = simplex2D(state, (double)pos.x/100.0, (double)pos.z/100.0) * 10;
+	int height = simplex2D(state, (double)pos.x/100.0, 
+		(double)pos.z/100.0) * 10;
 
 	if (height < pos.y)
 		return blockGet(BLOCKTYPE_AIR);

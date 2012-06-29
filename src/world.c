@@ -34,6 +34,8 @@ World * worldInit(Block *(*gen)(Vector3i))
 	world->maxBubblesToUpdate = 2;
 	world->bubblesToUpdate = listNew();
 
+	world->ingameTime = 0;
+
 	// chunkgen
 	world->chunkGroups = listNew(sizeof(ChunkGroup*));
 	world->groupSize = (Vector3i){16, 8, 16};

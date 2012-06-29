@@ -32,6 +32,9 @@ typedef struct World {
 
 	// chunkgen
 	void *annotatedBlocks;
+
+	// variable to calculate current ingame day
+	long long int ingameTime;
 } World;
 
 extern World * worldInit(Block *(*gen)(Vector3i));
